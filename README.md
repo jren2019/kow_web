@@ -17,7 +17,8 @@ tf.saved_model.simple_save(session, '/tmp/saved_model', inputs={'input': encoder
                                                                 'lr': encoder.learning_rate,
                                                                 'bz': encoder.batch_size
                                                                 },
-                           outputs={'output': ops.rnn_output, })```
+                           outputs={'output': ops.rnn_output, })
+ ```
 
 
 # install tensorflowjs
