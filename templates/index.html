@@ -6,7 +6,7 @@
 </head>
 <body>
 <script>
-    const MODEL_URL = '/static/web_model/model.json'	//模型文件名
+    const MODEL_URL = '/static/web_model_1/model.json'	//模型文件名
     async function fun() {	//预测函数
         const model = await tf.loadGraphModel(MODEL_URL);	//加载图模型
 
@@ -15,17 +15,10 @@
         const target_sequence_lens = tf.tensor([10, 10]).toInt();
         const source_sequence_lens = tf.tensor([10, 10]).toInt();
 
-        model.executeAsync([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).then(value => {
+        model.executeAsync([target_sequence_lens, source_sequence_lens, actual_start_tokens, X_batch]).then(value => {
             value.print()
             console.log(value)
         })
-
-        model.executeAsync([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).then(value => {
-            value.print()
-            console.log(value)
-        })
-
-        {#console.log(xxx)#}
         {#model.predict([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).print()	//进行预测并输出预测结果#}
     }
 
@@ -33,6 +26,38 @@
 </script>
 </body>
 </html>
+
+
+
+{#-----------first_version-----------#}
+{#<!doctype html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>#}
+{#    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>#}
+{#</head>#}
+{#<body>#}
+{#<script>#}
+{#    const MODEL_URL = '/static/web_model/model.json'	//模型文件名#}
+{#    async function fun() {	//预测函数#}
+{#        const model = await tf.loadGraphModel(MODEL_URL);	//加载图模型#}
+{##}
+{#        const X_batch = tf.randomNormal([2, 10, 257], 0);#}
+{#        const actual_start_tokens = tf.tensor([[-1],[-1]]);#}
+{#        const target_sequence_lens = tf.tensor([10, 10]).toInt();#}
+{#        const source_sequence_lens = tf.tensor([10, 10]).toInt();#}
+{##}
+{#        model.executeAsync([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).then(value => {#}
+{#            value.print()#}
+{#            console.log(value)#}
+{#        })#}
+        {#model.predict([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).print()	//进行预测并输出预测结果#}
+{#    }#}
+{##}
+{#    fun()	//调用函数#}
+{#</script>#}
+{#</body>#}
+{#</html>#}
 
 
 {##}
@@ -58,7 +83,6 @@
 {#            console.log(value)#}
 {#        })#}
 {##}
-        {#console.log(xxx)#}
         {#model.predict([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).print()	//进行预测并输出预测结果#}
 {#    }#}
 {##}
