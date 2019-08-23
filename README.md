@@ -5,6 +5,7 @@ Use tensorflowjs to load the trained model with python tensorflow
 ops = encoder.inference_decoder_output
 import tensorflow as tf
 
+'''
 tf.saved_model.simple_save(session, '/tmp/saved_model', inputs={'input': encoder.input_data,
                                                                 'out': encoder.output_data,
                                                                 's_token': encoder.start_tokens,
@@ -16,7 +17,7 @@ tf.saved_model.simple_save(session, '/tmp/saved_model', inputs={'input': encoder
                                                                 'lr': encoder.learning_rate,
                                                                 'bz': encoder.batch_size
                                                                 },
-                           outputs={'output': ops.rnn_output, })
+                           outputs={'output': ops.rnn_output, })'''
 
 
 # install tensorflowjs
