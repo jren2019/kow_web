@@ -13,4 +13,8 @@ tensorflowjs_converter \
 ./saved_model \
 ./web_model11
 
-# I got the result with the random input, the output should be in range [0,1], but my output is shown in figure error.png
+
+# saved_model is inside this folder: https://github.com/jren2019/kow_web/tree/master/static/saved_model
+
+# Question?
+# I got the result with the random input, the output should be in range [0,1], but my output is shown in figure error.png https://github.com/jren2019/kow_web/blob/master/error.png
