@@ -1,7 +1,7 @@
 # kow_web
 Use tensorflowjs to load the trained model with python tensorflow
 
-# save the model as saved_model
+# 1) save the model as saved_model
 ops = encoder.inference_decoder_output
 import tensorflow as tf
 
@@ -21,10 +21,10 @@ tf.saved_model.simple_save(session, '/tmp/saved_model', inputs={'input': encoder
  ```
 
 
-# install tensorflowjs
+# 2) install tensorflowjs
 pip install tensorflowjs==0.8.6
 
-# convert the trained model with python
+# 3) convert the trained model with python tensorfow according to the requirement of tensorflowjs
 tensorflowjs_converter \
 --input_format=tf_saved_model \
 --output_node_names 'decode_1/decoder/transpose' \
@@ -33,4 +33,4 @@ tensorflowjs_converter \
 ./saved_model \
 ./web_model
 
-# start the django project, go to the console to see the result 
+# 4) start the django project, go to the console to see the result 
