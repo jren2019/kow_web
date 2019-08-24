@@ -7,7 +7,7 @@
 <body>
 <script>
     const MODEL_URL = '/static/web_model_1/model.json'	//模型文件名
-    async function fun() {	//预测函数
+    async function load_model() {	//预测函数
         const model = await tf.loadGraphModel(MODEL_URL);	//加载图模型
         const X_batch = tf.zeros([2, 10, 257])
         {#const X_batch = tf.randomNormal([2, 10, 257], 0, 0.1);#}
@@ -22,7 +22,7 @@
         {#model.predict([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).print()	//进行预测并输出预测结果#}
     }
 
-    fun()	//调用函数
+    load_model()	//调用函数
 </script>
 </body>
 </html>
