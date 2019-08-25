@@ -6,26 +6,173 @@
 </head>
 <body>
 <script>
-    const MODEL_URL = '/static/web_model_1/model.json'	//模型文件名
-    async function load_model() {	//预测函数
-        const model = await tf.loadGraphModel(MODEL_URL);	//加载图模型
-        const X_batch = tf.zeros([2, 10, 257])
-        {#const X_batch = tf.randomNormal([2, 10, 257], 0, 0.1);#}
-        const actual_start_tokens = tf.tensor([[-1],[-1]]);
-        const target_sequence_lens = tf.tensor([10, 10]).toInt();
-        const source_sequence_lens = tf.tensor([10, 10]).toInt();
+    /**
+     * Make a request to download file by GET
+     * @param url
+     * @param ArrayClass if not null, the response is converted to the typed array of this class
+     * @returns {Promise}
+     */
+    const downloadRequest = function (url, ArrayClass = null) {
+        return new Promise(function (resolve, reject) {
+            let req = new XMLHttpRequest();
+            req.open('GET', url, true);
+            if (ArrayClass) {
+                req.responseType = 'arraybuffer';
+            }
 
-        model.executeAsync([target_sequence_lens, source_sequence_lens, actual_start_tokens, X_batch]).then(value => {
-            value.print()
-            console.log(value)
-        })
-        {#model.predict([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).print()	//进行预测并输出预测结果#}
+            req.onload = function () {
+                if (ArrayClass) {
+                    let byteArray = new ArrayClass(req.response);
+                    resolve(byteArray);
+                }
+                else {
+                    resolve(req.response);
+                }
+            };
+
+            req.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                    if (this.status !== 200) {
+                        let responseJson = JSON.parse(this.response);
+                        let responseMessage = responseJson.message;
+                        reject(new Error(responseMessage));
+                    }
+                }
+            };
+
+            req.send(null);
+        });
+    };
+
+    function zip() {
+        var args = [].slice.call(arguments);
+        var longest = args.reduce(function(a,b){
+            return a.length>b.length ? a : b
+        }, []);
+
+        return longest.map(function(_,i){
+            return args.map(function(array){return array[i]})
+        });
     }
 
-    load_model()	//调用函数
+    function checkBoolean(predict, threashold) {
+        var status = predict >= threashold
+        if(status)
+            return 1;
+        else
+            return 0;
+    }
+
+    /**
+     *
+     * @param array is the predicted results, a matrix
+     * syllable_frames: is the final outputs
+     */
+    function convert_to_ends(array) {
+        // generate the windows, [start, end]
+        const windows = [];
+        const window_len = 10
+        for (let i = 0; i < array.length; i++) {
+            var one_window = [i, i+window_len]
+            windows.push(one_window)
+        }
+        console.log(windows);
+
+        var mask = Array(array.length).fill(0);
+        console.log(mask);
+        for (const [predicted, window] of zip(array, windows)){
+            console.log(`predicted: ${predicted}, window: ${window}`);
+            var beg = window[0];
+            var end  = window[1];
+            console.log(beg, end);
+            var predicted_re = predicted.map(function(x){ return checkBoolean(x, 0.5)})
+            console.log(predicted_re)
+            for (let i = beg; i < end; i++){
+                k = 0
+                mask.splice(i, 1, mask[i] + predicted_re[k]);
+            }
+        }
+        console.log(mask)
+
+        const threshold = window_len * 0.3
+        const syllable_frames = mask.map(function(x){return checkBoolean(x, threshold)})
+
+        // this is the final output
+        console.log(syllable_frames)
+
+
+
+    }
+
+    async function start_load_model() {	//预测函数
+        let datapath = '/static/testdata.json';
+        return downloadRequest(datapath, null).then(function (jsonContent) {
+            let data = JSON.parse(jsonContent);
+            let windoweds = data.windoweds;
+            let lengths = data.lengths;
+            let predicteds = data.predicteds;
+            let output_dim = 1;
+            let go_token = -1;
+            let window_length = 10;
+
+            const MODEL_URL = '/static/web_model_1/model.json';
+            function load_model() {
+                tf.loadGraphModel(MODEL_URL).then(function (model) {
+                    const X_batch = tf.tensor(windoweds);
+                    const batch_size = windoweds.length;
+
+                    const actual_start_tokens = tf.fill([batch_size, output_dim], go_token);
+                    const target_sequence_lens = tf.tensor(lengths).toInt();
+                    const source_sequence_lens = tf.fill([batch_size], window_length).toInt();
+                    model.executeAsync([target_sequence_lens, source_sequence_lens, actual_start_tokens, X_batch]).then(value => {
+                        value.array().then(function (array) {
+                            console.log(predicteds);
+                            console.log(array);
+                            convert_to_ends(array)
+
+                        });
+                    });
+                });
+            }
+            load_model()
+        });
+    }
+    start_load_model()	//调用函数
 </script>
 </body>
 </html>
+
+
+
+
+{#<!doctype html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>#}
+{#    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>#}
+{#</head>#}
+{#<body>#}
+{#<script>#}
+{#    const MODEL_URL = '/static/web_model_1/model.json'	//模型文件名#}
+{#    async function load_model() {	//预测函数#}
+{#        const model = await tf.loadGraphModel(MODEL_URL);	//加载图模型#}
+{#        const X_batch = tf.zeros([2, 10, 257])#}
+        {#const X_batch = tf.randomNormal([2, 10, 257], 0, 0.1);#}
+{#        const actual_start_tokens = tf.tensor([[-1],[-1]]);#}
+{#        const target_sequence_lens = tf.tensor([10, 10]).toInt();#}
+{#        const source_sequence_lens = tf.tensor([10, 10]).toInt();#}
+{##}
+{#        model.executeAsync([target_sequence_lens, source_sequence_lens, actual_start_tokens, X_batch]).then(value => {#}
+{#            value.print()#}
+{#            console.log(value)#}
+{#        })#}
+        {#model.predict([X_batch, actual_start_tokens, target_sequence_lens, source_sequence_lens]).print()	//进行预测并输出预测结果#}
+{#    }#}
+{##}
+{#    load_model()	//调用函数#}
+{#</script>#}
+{#</body>#}
+{#</html>#}
 
 
 
