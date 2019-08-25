@@ -103,14 +103,21 @@
     }
 
     async function start_load_model() {	//预测函数
+        //load the configuration from the saved model, meta.json
+        let metapath = '/static/zip_model/meta.json'
+        const config = await downloadRequest(metapath, null).then(function (jsonContent) {
+            return JSON.parse(jsonContent)
+        })
+
         let datapath = '/static/testdata.json';
         return downloadRequest(datapath, null).then(function (jsonContent) {
             let data = JSON.parse(jsonContent);
             let windoweds = data.windoweds;
             let lengths = data.lengths;
             let predicteds = data.predicteds;
-            let output_dim = 1;
-            let go_token = -1;
+
+            let output_dim = config['output_dim'];
+            let go_token = config["go_token"];
             let window_length = 10;
 
             const MODEL_URL = '/static/web_model_1/model.json';
