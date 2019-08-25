@@ -87,9 +87,10 @@
             console.log(beg, end);
             var predicted_re = predicted.map(function(x){ return checkBoolean(x, 0.5)})
             console.log(predicted_re)
+            k = 0
             for (let i = beg; i < end; i++){
-                k = 0
                 mask.splice(i, 1, mask[i] + predicted_re[k]);
+                k = k+1
             }
         }
         console.log(mask)
@@ -99,9 +100,6 @@
 
         // this is the final output
         console.log(syllable_frames)
-
-
-
     }
 
     async function start_load_model() {	//预测函数
