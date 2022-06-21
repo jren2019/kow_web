@@ -9,7 +9,7 @@ Keras-Applications==1.0.6
 Keras-Preprocessing==1.0.5
 Markdown==3.1.1
 mock==3.0.5
-numpy==1.16.3
+numpy==1.22.0
 protobuf==3.9.1
 pytz==2019.2
 PyYAML==5.1.2
